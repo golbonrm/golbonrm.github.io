@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golbon Marandiz — Security</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" crossorigin>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0f0d;
+    --bg2: #161714;
+    --bg3: #1e1f1c;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8e6df;
+    --text2: #9a9890;
+    --text3: #5e5d58;
+    --accent: #0f6e56;
+    --accent2: #1d9e75;
+    --accent3: #9fe1cb;
+    --accent-glow: rgba(15, 110, 86, 0.15);
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--accent); color: #fff; }
+
+  a { color: var(--accent3); text-decoration: none; transition: color 0.2s; }
+  a:hover { color: #fff; }
+
+  .noise {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 1; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 1.25rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(14,15,13,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-name {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text2);
+    letter-spacing: 0.05em;
+  }
+
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent3); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 0 2rem 5rem;
+    max-width: 720px; margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent2);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.2s forwards;
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.35s forwards;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent3);
+  }
+
+  .hero-desc {
+    margin-top: 2rem;
+    font-size: 16px;
+    color: var(--text2);
+    max-width: 520px;
+    line-height: 1.75;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.5s forwards;
+  }
+
+  .hero-tags {
+    margin-top: 1.75rem;
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.65s forwards;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border2);
+    border-radius: 2px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    transition: all 0.2s;
+  }
+
+  .tag:hover { border-color: var(--accent); color: var(--accent3); }
+
+  .hero-links {
+    margin-top: 2.5rem;
+    display: flex; gap: 1.5rem; align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.8s forwards;
+  }
+
+  .btn-primary {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.65rem 1.5rem;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: var(--accent2); color: #fff; }
+
+  .btn-ghost {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text2);
+    transition: color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--text); }
+
+  /* SECTIONS */
+  section {
+    padding: 6rem 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 3rem;
+  }
+
+  /* ABOUT */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+
+  .about-text { font-size: 15px; color: var(--text2); line-height: 1.8; }
+  .about-text p + p { margin-top: 1rem; }
+  .about-text strong { color: var(--text); font-weight: 500; }
+
+  .about-aside {}
+
+  .about-aside h3 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 0.75rem;
+  }
+
+  .skill-row { margin-bottom: 1.5rem; }
+
+  .skill-category {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    margin-bottom: 0.4rem;
+  }
+
+  .skill-items {
+    display: flex; flex-wrap: wrap; gap: 0.35rem;
+  }
+
+  .skill-chip {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 0.2rem 0.5rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text3);
+    letter-spacing: 0.04em;
+  }
+
+  /* PROJECTS */
+  .project {
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: start;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .project:last-child { border-bottom: none; }
+
+  .project-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    margin-bottom: 0.6rem;
+  }
+
+  .project-title {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+  }
+
+  .project-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.75;
+    max-width: 540px;
+  }
+
+  .project-finding {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg3);
+    border-left: 2px solid var(--accent);
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .project-finding strong { color: var(--accent3); font-weight: 500; }
+
+  .project-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 1rem; }
+
+  .project-link {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    white-space: nowrap;
+    transition: color 0.2s;
+    padding-top: 0.25rem;
+  }
+  .project-link:hover { color: var(--accent3); }
+
+  .project-link::after { content: ' ↗'; }
+
+  /* EXPERIENCE */
+  .exp-item { padding: 2rem 0; border-bottom: 1px solid var(--border); }
+  .exp-item:last-child { border-bottom: none; }
+
+  .exp-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.4rem;
+    gap: 1rem;
+  }
+
+  .exp-role { font-weight: 500; font-size: 15px; color: var(--text); }
+
+  .exp-date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .exp-org {
+    font-size: 13px;
+    color: var(--accent2);
+    margin-bottom: 0.75rem;
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+  }
+
+  .exp-bullets { list-style: none; }
+
+  .exp-bullets li {
+    font-size: 14px;
+    color: var(--text2);
+    padding-left: 1.25rem;
+    position: relative;
+    margin-bottom: 0.4rem;
+    line-height: 1.65;
+  }
+
+  .exp-bullets li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--text3);
+    font-size: 12px;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 4rem 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-name {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    color: var(--text2);
+  }
+
+  .footer-links { display: flex; gap: 2rem; }
+  .footer-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--accent3); }
+
+  /* LINE DECORATION */
+  .line-accent {
+    width: 40px; height: 1px;
+    background: var(--accent);
+    margin-bottom: 3rem;
+  }
+
+  /* SCROLL REVEAL */
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(20px); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .project { grid-template-columns: 1fr; }
+    .project-link { display: none; }
+    .footer-inner { flex-direction: column; gap: 1.5rem; align-items: flex-start; }
+    .nav-links { display: none; }
+    .hero h1 { font-size: 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+
+<nav>
+  <span class="nav-name">golbon marandiz</span>
+  <div class="nav-links">
+    <a href="#research">research</a>
+    <a href="#experience">experience</a>
+    <a href="#contact">contact</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <p class="hero-eyebrow">Security · Access Risk · Agentic Identity</p>
+  <h1>Golbon<br><em>Marandiz</em></h1>
+  <p class="hero-desc">
+    Security-focused engineer and UW Informatics senior — my work spans offensive research in sandboxed environments to access governance in production. Right now I'm especially interested in the security problems that emerge when AI agents start having access to things.
+  </p>
+  <div class="hero-tags">
+    <span class="tag">threat modeling</span>
+    <span class="tag">agentic identity</span>
+    <span class="tag">access risk</span>
+    <span class="tag">IAM</span>
+    <span class="tag">MCP security</span>
+    <span class="tag">appsec</span>
+  </div>
+  <div class="hero-links">
+    <a href="https://getrasti.com" class="btn-primary" target="_blank" rel="noopener">getrasti.com ↗</a>
+    <a href="https://linkedin.com/in/golbonmarandiz" class="btn-ghost" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="mailto:golbonrose@gmail.com" class="btn-ghost">Email</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ABOUT -->
+  <section id="about">
+    <p class="section-label reveal">About</p>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>I find the access risks that automated scanners miss — through STRIDE-based threat modeling, attack path simulation, and access intelligence analysis.</p>
+        <p>Currently finishing a B.S. in Informatics (Cybersecurity track) at the University of Washington, graduating June 2026. GPA 3.65, Ralph Leonard Achievement Scholarship.</p>
+        <p>Outside of security: learning <strong>Modern Hebrew</strong>, working on my handstand, doing too much genealogy research on my <strong>Persian heritage</strong>, and building <a href="https://getrasti.com" target="_blank" rel="noopener">Rasti</a>.</p>
+      </div>
+      <div class="about-aside reveal">
+        <h3>Skills</h3>
+        <div class="skill-row">
+          <div class="skill-category">Security Engineering</div>
+          <div class="skill-items">
+            <span class="skill-chip">IAM</span>
+            <span class="skill-chip">Zero-Trust</span>
+            <span class="skill-chip">Least Privilege</span>
+            <span class="skill-chip">PAM</span>
+            <span class="skill-chip">Attack Path Modeling</span>
+            <span class="skill-chip">Access Risk Analysis</span>
+          </div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-category">AI/LLM Security</div>
+          <div class="skill-items">
+            <span class="skill-chip">Agentic AI</span>
+            <span class="skill-chip">Prompt Injection</span>
+            <span class="skill-chip">MCP Research</span>
+          </div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-category">Methodologies</div>
+          <div class="skill-items">
+            <span class="skill-chip">STRIDE</span>
+            <span class="skill-chip">MITRE ATT&CK</span>
+            <span class="skill-chip">OWASP Top 10</span>
+            <span class="skill-chip">NIST CSF</span>
+            <span class="skill-chip">SOC 2</span>
+          </div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-category">Languages</div>
+          <div class="skill-items">
+            <span class="skill-chip">Python</span>
+            <span class="skill-chip">TypeScript</span>
+            <span class="skill-chip">JavaScript</span>
+            <span class="skill-chip">SQL</span>
+            <span class="skill-chip">Bash</span>
+          </div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-category">Tools</div>
+          <div class="skill-items">
+            <span class="skill-chip">Splunk</span>
+            <span class="skill-chip">Burp Suite</span>
+            <span class="skill-chip">ZAP</span>
+            <span class="skill-chip">Wireshark</span>
+            <span class="skill-chip">Bettercap</span>
+            <span class="skill-chip">Metasploit</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESEARCH & PROJECTS -->
+  <section id="research">
+    <p class="section-label reveal">Research & Projects</p>
+
+    <div class="project reveal">
+      <div>
+        <p class="project-meta">INFO 415, UW iSchool &nbsp;·&nbsp; Sep – Dec 2025 &nbsp;·&nbsp; Group Research</p>
+        <h2 class="project-title">MCP & Agentic LLM Attack Surface Research</h2>
+        <p class="project-desc">Designed and exploited intentionally vulnerable MCP server environments to model agentic identity attack surfaces. Applied STRIDE methodology to document lateral movement paths and indirect access risks arising from over-privileged tool permissions. Findings align with OWASP MCP Top 10 (2025) — tool poisoning, privilege escalation, and supply chain risks.</p>
+        <div class="project-finding">
+          <strong>Key finding:</strong> MCP systems become vulnerable when external servers are treated as trusted by default without explicit auth, validation, and permission boundaries. Novel lateral movement paths emerge when AI agents operate with unconstrained tool permissions.
+        </div>
+        <div class="project-tags">
+          <span class="tag">STRIDE</span>
+          <span class="tag">Agentic Identity</span>
+          <span class="tag">Prompt Injection</span>
+          <span class="tag">Lateral Movement</span>
+          <span class="tag">OWASP MCP Top 10</span>
+        </div>
+      </div>
+      <a href="https://www.notion.so/2f03c0d1c11e81989569cd40fe17d666" class="project-link" target="_blank" rel="noopener">View write-up</a>
+    </div>
+
+    <div class="project reveal">
+      <div>
+        <p class="project-meta">UW iSchool Senior Capstone &nbsp;·&nbsp; Jan 2026 – Present</p>
+        <h2 class="project-title">SilverGuard</h2>
+        <p class="project-desc">AI-powered Chromium browser extension protecting adults 65+ from financial fraud and social engineering in real time. Leading the security architecture: threat modeling the caregiver-senior trust boundary, enforcing security invariants across the full development lifecycle, and leading the transition to Manifest V3 with Supabase Auth/Clerk MFA.</p>
+        <div class="project-finding">
+          <strong>Architecture focus:</strong> Privacy-first design for sensitive visual data processing. Ensuring the family dashboard is accessible only to verified caregivers — identity boundary work in a high-stakes human context.
+        </div>
+        <div class="project-tags">
+          <span class="tag">Threat Modeling</span>
+          <span class="tag">Manifest V3</span>
+          <span class="tag">MFA</span>
+          <span class="tag">Secure-by-Default</span>
+          <span class="tag">TypeScript</span>
+        </div>
+      </div>
+      <a href="https://www.notion.so/33e3c0d1c11e8001beded79a7491f84c" class="project-link" target="_blank" rel="noopener">View write-up</a>
+    </div>
+
+    <div class="project reveal">
+      <div>
+        <p class="project-meta">INFO 310, UW iSchool &nbsp;·&nbsp; Jul – Aug 2025 &nbsp;·&nbsp; Individual</p>
+        <h2 class="project-title">UW Password Manager — Offensive/Defensive Lab</h2>
+        <p class="project-desc">End-to-end offensive and defensive security lifecycle on an intentionally vulnerable password manager. Attack phase: MitM via ARP spoofing, cookie manipulation for privilege escalation, SQLi auth bypass, stored XSS with webhook credential exfiltration, Msfvenom reverse shell with Meterpreter enumeration. Hardening phase across 8 successive labs.</p>
+        <div class="project-finding">
+          <strong>Result:</strong> ZAP alerts reduced from 18 → 6. Remediations: HTTPS/TLS, server-side session management, CSRF tokens, CSP, secrets management, prepared statements, brute-force lockout with anomaly logging.
+        </div>
+        <div class="project-tags">
+          <span class="tag">SQLi</span>
+          <span class="tag">XSS</span>
+          <span class="tag">CSRF</span>
+          <span class="tag">Metasploit</span>
+          <span class="tag">ZAP</span>
+          <span class="tag">Bettercap</span>
+        </div>
+      </div>
+      <a href="https://www.notion.so/2f03c0d1c11e80e0a4a4ef089321ccac" class="project-link" target="_blank" rel="noopener">View write-up</a>
+    </div>
+
+    <div class="project reveal">
+      <div>
+        <p class="project-meta">INFO 310, UW iSchool &nbsp;·&nbsp; 2025 &nbsp;·&nbsp; Individual</p>
+        <h2 class="project-title">Bug Bounty Testing & Application Hardening</h2>
+        <p class="project-desc">Post-remediation verification lab applying a bug bounty mindset to confirm whether previously hardened controls actually held under realistic attack scenarios — the part of security work most people skip.</p>
+        <div class="project-finding">
+          <strong>Attack path:</strong> Identified that weak CSP + missing cookie attributes created a chain from reflected XSS → session cookie theft → authenticated session hijack → credential vault access. Scanner didn't flag it as high severity. Manual reasoning did.
+        </div>
+        <div class="project-tags">
+          <span class="tag">Bug Bounty Methodology</span>
+          <span class="tag">CSP</span>
+          <span class="tag">Session Management</span>
+          <span class="tag">Selenium</span>
+          <span class="tag">Pytest</span>
+        </div>
+      </div>
+      <a href="https://www.notion.so/2f03c0d1c11e80ee89a0f14075a5e8df" class="project-link" target="_blank" rel="noopener">View write-up</a>
+    </div>
+
+    <div class="project reveal">
+      <div>
+        <p class="project-meta">Personal Project &nbsp;·&nbsp; April 2026 – Present</p>
+        <h2 class="project-title">Rasti — AI-Driven Relational Insights</h2>
+        <p class="project-desc">Personal AI platform handling sensitive personal data. Designed security architecture from scratch: STRIDE threat model, least-privilege Supabase RLS policies, hardened API boundaries, secrets management, and OWASP-aligned auth controls. Deployed with A+ security headers at getrasti.com.</p>
+        <div class="project-tags">
+          <span class="tag">STRIDE</span>
+          <span class="tag">Supabase RLS</span>
+          <span class="tag">Vite</span>
+          <span class="tag">TypeScript</span>
+          <span class="tag">Security Headers</span>
+        </div>
+      </div>
+      <a href="https://getrasti.com" class="project-link" target="_blank" rel="noopener">Live site</a>
+    </div>
+
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <p class="section-label reveal">Experience</p>
+
+    <div class="exp-item reveal">
+      <div class="exp-header">
+        <span class="exp-role">Security & Compliance PM Intern</span>
+        <span class="exp-date">Jan 2026 – Present</span>
+      </div>
+      <div class="exp-org">Propper AI &nbsp;·&nbsp; Remote</div>
+      <ul class="exp-bullets">
+        <li>Identified least-privilege violations across 35+ access controls through systematic log analysis and access review; prioritized by blast radius and drove remediation sequencing that closed highest-risk gaps first.</li>
+        <li>Engineered automated evidence collection pipeline reducing manual audit effort by ~55%; shifted compliance posture from point-in-time snapshots to continuous visibility across SOC 2 Trust Service Criteria.</li>
+      </ul>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-header">
+        <span class="exp-role">Engineering Intern</span>
+        <span class="exp-date">Nov 2025 – Jan 2026</span>
+      </div>
+      <div class="exp-org">Propper AI &nbsp;·&nbsp; Remote</div>
+      <ul class="exp-bullets">
+        <li>Enforced least-privilege access controls in a production TypeScript monorepo — implemented MFA, hardened internal dashboard authentication, and established an access control baseline for the engineering org.</li>
+      </ul>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-header">
+        <span class="exp-role">Data Analyst Intern</span>
+        <span class="exp-date">Feb 2024 – Jan 2026</span>
+      </div>
+      <div class="exp-org">The AHA Foundation &nbsp;·&nbsp; Remote</div>
+      <ul class="exp-bullets">
+        <li>Independently scoped and executed a full web security assessment uncovering 10+ high-risk misconfigurations; applied STRIDE to prioritize by exploitability and business impact, delivered findings to executive leadership.</li>
+      </ul>
+    </div>
+
+    <div class="exp-item reveal">
+      <div class="exp-header">
+        <span class="exp-role">Member Consultant II</span>
+        <span class="exp-date">Aug 2023 – Sep 2024</span>
+      </div>
+      <div class="exp-org">BECU &nbsp;·&nbsp; Seattle, WA</div>
+      <ul class="exp-bullets">
+        <li>Investigated and escalated 50+ fraud and suspicious activity cases — distilling access data from internal systems to identify anomalies, prioritize high-risk cases, and surface access abuse signals.</li>
+        <li>Maintained 100% GLBA/BSA compliance; executed identity verification and secure data handling in a mission-critical financial environment.</li>
+      </ul>
+    </div>
+
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <p class="section-label reveal">Contact</p>
+    <div class="reveal">
+      <p style="font-size: 2rem; font-family: var(--serif); color: var(--text); line-height: 1.2; margin-bottom: 2rem;">Let's talk access risk,<br><em style="color: var(--accent3);">agentic security,</em><br>or anything in between.</p>
+      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center;">
+        <a href="mailto:golbonrose@gmail.com" class="btn-primary">golbonrose@gmail.com</a>
+        <a href="https://linkedin.com/in/golbonmarandiz" class="btn-ghost" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a href="https://github.com/golbonrm" class="btn-ghost" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <span class="footer-name">Golbon Marandiz</span>
+      <div class="footer-links">
+        <a href="https://linkedin.com/in/golbonmarandiz" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/golbonrm" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://getrasti.com" target="_blank" rel="noopener">Rasti</a>
+        <a href="mailto:golbonrose@gmail.com">Email</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 60);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
